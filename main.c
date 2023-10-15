@@ -72,11 +72,11 @@ int partition(int start, int end) {
  * @param start The starting index of the array to be sorted.
  * @param end The ending index of the array to be sorted.
  */
-void quicksortBook(int start, int end) {
+void quicksortBooks(int start, int end) {
     if (start < end) {
         int pivot = partition(start, end);
-        quicksortBook(start, pivot - 1);
-        quicksortBook(pivot + 1, end);
+        quicksortBooks(start, pivot - 1);
+        quicksortBooks(pivot + 1, end);
     }
 }
 
@@ -149,39 +149,40 @@ void listBooks() {
 
 
 void addBook() {
+    Book book;
+    printf("addBook():\n");
+    printf("Enter bookID:\n");
+    scanf("%d", &book.bookID);
+    getchar();
+
+    printf("Enter book title:\n");
+    readline(book.title);
+
+    printf("Enter author name:\n");
+    readline(book.author);
+
+    printf("Enter price:\n");
+    scanf("%lf", &book.price);
+    getchar();
+
+    printf("Enter quantity:\n");
+    scanf("%d", &book.quantity);
+    getchar();
+
     if (totalBooks >= MAX_BOOKS) {
         printf("The bookshop is full! Unable to addBook()\n");
         return;
     }
 
-    Book *book = &books[totalBooks];
-    printf("addBook():\n");
-    printf("Enter bookID:\n");
-    scanf("%d", &book->bookID);
-    getchar();
-
-    printf("Enter book title:\n");
-    readline(book->title);
-
-    printf("Enter author name:\n");
-    readline(book->author);
-
-    printf("Enter price:\n");
-    scanf("%lf", &book->price);
-    getchar();
-
-    printf("Enter quantity:\n");
-    scanf("%d", &book->quantity);
-    getchar();
-
-    if (containBookID(book->bookID)) {
+    if (containBookID(book.bookID)) {
         printf("The bookID has already existed! Unable to addBook()\n");
         return;
     }
 
+    books[totalBooks] = book;
     totalBooks++;
 
-    if (totalBooks > 1)quicksortBook(0, totalBooks - 1);
+    if (totalBooks > 1)quicksortBooks(0, totalBooks - 1);
     printf("The book has been added successfully\n");
 
 }
