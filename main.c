@@ -206,8 +206,9 @@ void removeBook() {
     int index = findBookByTitleAndAuthor(title, author);
 
     if (index != -1) {
-        removeBookIndex(index);
         printf("The target book is removed\n");
+        displayBook(index);
+        removeBookIndex(index);
     } else {
         printf("The target book is not in the bookshop\n");
     }
@@ -215,7 +216,7 @@ void removeBook() {
 }
 
 void findBook() {
-    printf("findBooks():\n");
+    printf("findBook():\n");
 
     printf("Enter the target book title:\n");
     char title[MAX_CHAR_LENGTH];
@@ -256,6 +257,7 @@ void updateBook() {
         scanf("%d", &book->quantity);
 
         printf("The target book is updated\n");
+        displayBook(index);
     } else {
         printf("The target book is not in the bookshop\n");
     }
