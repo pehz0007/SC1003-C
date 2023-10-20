@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <strings.h>
+#include <malloc.h>
 
 #define MAX_BOOKS 5
 #define MAX_CHAR_LENGTH 40
@@ -22,8 +23,55 @@ void findBook();
 
 void updateBook();
 
-Book books[MAX_BOOKS];
+Book** books;
 int totalBooks;
+
+int main() {
+    setbuf(stdout, 0);
+    books = (Book**)malloc(MAX_BOOKS * sizeof(Book*));
+    for(int i = 0; i < MAX_BOOKS; ++i)books[i] = malloc(sizeof(Book));
+
+    printf("NTU BOOKSHOP MANAGEMENT PROGRAM:\n");
+    printf("1: listBooks()\n");
+    printf("2: addBook()\n");
+    printf("3: removeBook()\n");
+    printf("4: findBook()\n");
+    printf("5: updateBook()\n");
+    printf("6: quit\n");
+    int choice;
+    int run = 1;
+    while (run) {
+        printf("Enter your choice:\n");
+        scanf("%d", &choice);
+        getchar();
+        switch (choice) {
+            case 1:
+                listBooks();
+                break;
+            case 2:
+                addBook();
+                break;
+            case 3:
+                removeBook();
+                break;
+            case 4:
+                findBook();
+                break;
+            case 5:
+                updateBook();
+                break;
+            case 6:
+                run = 0;
+                break;
+        }
+    }
+
+    for(int i = 0; i < MAX_BOOKS; ++i)free(books[i]);
+    free(books);
+    return 0;
+}
+
+
 
 /////////////////////////////
 //     UTILITY FUNCTIONS  ///
@@ -46,7 +94,7 @@ void readline(char *buf) {
  * @param j the index of the second element to be swapped.
  */
 void swapBook(int i, int j) {
-    Book tmp = books[i];
+    Book* tmp = books[i];
     books[i] = books[j];
     books[j] = tmp;
 }
@@ -55,8 +103,8 @@ void swapBook(int i, int j) {
 int partition(int start, int end) {
     int pivot = end;
     int i = start - 1;
-    for (int j = start; j < end; j++) {
-        if (books[j].bookID <= books[pivot].bookID) {
+    for (int j = start; j < end; ++j) {
+        if (books[j]->bookID <= books[pivot]->bookID) {
             i++;
             if (j != i) {
                 swapBook(i, j);
@@ -85,7 +133,7 @@ void quicksortBooks(int start, int end) {
  * @param index The index of the book to be displayed.
  */
 void displayBook(int index) {
-    Book *book = &books[index];
+    Book *book = books[index];
     printf("BookID: %d\n", book->bookID);
     printf("Book title: %s\n", book->title);
     printf("Author name: %s\n", book->author);
@@ -99,8 +147,8 @@ void displayBook(int index) {
  * @return 1 if the bookID exists in the [books] array, 0 otherwise.
  */
 int containBookID(int bookID) {
-    for (int i = 0; i < totalBooks; i++) {
-        if (books[i].bookID == bookID) return 1;
+    for (int i = 0; i < totalBooks; ++i) {
+        if (books[i]->bookID == bookID) return 1;
     }
     return 0;
 }
@@ -112,9 +160,9 @@ int containBookID(int bookID) {
  * @return Index of the book in the [books] array if found, -1 otherwise.
  */
 int findBookByTitleAndAuthor(char const *title, char const *author) {
-    for (int i = 0; i < totalBooks; i++) {
-        if (strcasecmp(title, books[i].title) == 0 &&
-            strcasecmp(author, books[i].author) == 0) {
+    for (int i = 0; i < totalBooks; ++i) {
+        if (strcasecmp(title, books[i]->title) == 0 &&
+            strcasecmp(author, books[i]->author) == 0) {
             return i;
         }
     }
@@ -127,7 +175,7 @@ int findBookByTitleAndAuthor(char const *title, char const *author) {
  */
 void removeBookIndex(int index) {
     // Shift books back one element to remove the book at the given index
-    for (int i = index; i < totalBooks - 1; i++) {
+    for (int i = index; i < totalBooks - 1; ++i) {
         swapBook(i, i + 1);
     }
     totalBooks--;
@@ -149,24 +197,24 @@ void listBooks() {
 
 
 void addBook() {
-    Book book;
+    Book* book = books[totalBooks];
     printf("addBook():\n");
     printf("Enter bookID:\n");
-    scanf("%d", &book.bookID);
+    scanf("%d", &(book->bookID));
     getchar();
 
     printf("Enter book title:\n");
-    readline(book.title);
+    readline(book->title);
 
     printf("Enter author name:\n");
-    readline(book.author);
+    readline(book->author);
 
     printf("Enter price:\n");
-    scanf("%lf", &book.price);
+    scanf("%lf", &(book->price));
     getchar();
 
     printf("Enter quantity:\n");
-    scanf("%d", &book.quantity);
+    scanf("%d", &(book->quantity));
     getchar();
 
     if (totalBooks >= MAX_BOOKS) {
@@ -174,12 +222,12 @@ void addBook() {
         return;
     }
 
-    if (containBookID(book.bookID)) {
+    if (containBookID(book->bookID)) {
         printf("The bookID has already existed! Unable to addBook()\n");
         return;
     }
 
-    books[totalBooks] = book;
+//    books[totalBooks] = book;
     totalBooks++;
 
     if (totalBooks > 1)quicksortBooks(0, totalBooks - 1);
@@ -249,12 +297,12 @@ void updateBook() {
     int index = findBookByTitleAndAuthor(title, author);
 
     if (index != -1) {
-        Book *book = &books[index];
+        Book *book = books[index];
         printf("Enter updated book price:\n");
-        scanf("%lf", &book->price);
+        scanf("%lf", &(book->price));
 
         printf("Enter updated quantity:\n");
-        scanf("%d", &book->quantity);
+        scanf("%d", &(book->quantity));
 
         printf("The target book is updated\n");
         displayBook(index);
@@ -263,45 +311,5 @@ void updateBook() {
     }
 
 
-}
-
-int main() {
-    setbuf(stdout, 0);
-    printf("NTU BOOKSHOP MANAGEMENT PROGRAM:\n");
-    printf("1: listBooks()\n");
-    printf("2: addBook()\n");
-    printf("3: removeBook()\n");
-    printf("4: findBook()\n");
-    printf("5: updateBook()\n");
-    printf("6: quit\n");
-    int choice;
-    int run = 1;
-    while (run) {
-        printf("Enter your choice:\n");
-        scanf("%d", &choice);
-        getchar();
-        switch (choice) {
-            case 1:
-                listBooks();
-                break;
-            case 2:
-                addBook();
-                break;
-            case 3:
-                removeBook();
-                break;
-            case 4:
-                findBook();
-                break;
-            case 5:
-                updateBook();
-                break;
-            case 6:
-                run = 0;
-                break;
-        }
-    }
-
-    return 0;
 }
 
